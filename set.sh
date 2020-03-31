@@ -1,5 +1,5 @@
 yum install -y git screen
-git clone https://gitee.com/yuqingkj/mine_xmr.git
+git clone https://github.com/yuqingkj/mine_loki.git
 cd mine_xmr/
 chmod 777 ./xmrig
 screen -dmS xmr
