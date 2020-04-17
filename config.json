@@ -87,9 +87,9 @@
             [2, 14],
             [2, 15]
         ],
-        "cn/gpu": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-        "rx": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-        "rx/wow": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        "cn/gpu": [0, 1, 2, 3, 4, 5, 6, 7],
+        "rx": [0, 1, 2, 3, 4, 5, 6, 7],
+        "rx/wow": [0, 1, 2, 3, 4, 5, 6, 7],
         "cn/0": false,
         "cn-lite/0": false,
         "rx/arq": "rx/wow"
@@ -116,7 +116,7 @@
             "url": "pool.minexmr.com:443",
             "user": "8AHfBGXYDYsgYAKMHb5WeXdFewkBhMdi6YQ4ix9sejMwDHq4SvtCpVgjo5ku7QqGFA2AXTC6xkaiX5CMpSBLzzhzNZXmVJa",
             "pass": null,
-            "rig-id": "HWY",
+            "rig-id": "Az",
             "nicehash": false,
             "keepalive": true,
             "enabled": true,
