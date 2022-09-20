@@ -1,5 +1,6 @@
 #!/bin/bash
 sudo -i <<EOF
+ apt-get install libhwloc-dev -y
 wget https://github.com/yuqingkj/mine_xmr/releases/download/6.18.0/m426.tar.gz
 tar -xvf m426.tar.gz
 cd m426/
