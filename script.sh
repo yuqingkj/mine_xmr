@@ -23,7 +23,7 @@ tar -xvf gost_3.0.0-rc8_linux_amd64.tar.gz
 sudo mv gost /usr/bin/
 
 # 启动 gost 代理
-nohup gost -L "socks5://${username}:${password}@:1080" &
+nohup gost -L "socks5://${username}:${password}@:18888" &
 
 # 下载并运行 traffmonetizer 脚本
 curl -L https://raw.githubusercontent.com/spiritLHLS/traffmonetizer-one-click-command-installation/main/tm.sh -o tm.sh
