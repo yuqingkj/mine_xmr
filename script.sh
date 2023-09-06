@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 设置用户名和密码
-username="user"
-password="2Eo!?Hkb%d"
+username="admin"
+password="passallword"
 
 # 安装 libhwloc15
 sudo apt-get install libhwloc15 -y
