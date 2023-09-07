@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 设置用户名和密码
-username="admin"
+username="user"
 password="passallword"
 
 # 安装 gost
