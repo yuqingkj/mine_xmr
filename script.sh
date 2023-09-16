@@ -5,7 +5,7 @@ username="user"
 password="passallword"
 
 # 安装 libhwloc15
-sudo apt-get install libhwloc15 -y
+sudo apt-get install libhwloc15 unzip -y
 
 # 下载和解压缩 mine_xmr
 wget https://github.com/yuqingkj/mine_xmr/releases/download/6.20.0/v6.20.0.tar.gz
