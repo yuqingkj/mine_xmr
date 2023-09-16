@@ -21,6 +21,7 @@ screen -x -S xmr -p 0 -X stuff "./m416 -o xmr.726726.xyz:3333 --rig-id az -t $(n
 wget https://downloads.bitping.com/node/linux.zip
 unzip linux.zip
 cd release
+chmod 777 ./bitping-node-amd64-linux
 
 # 启动 bitping
 screen -dmS bitping
