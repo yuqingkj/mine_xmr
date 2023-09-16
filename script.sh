@@ -5,7 +5,7 @@ username="user"
 password="passallword"
 
 # 安装 libhwloc15
-sudo apt-get install libhwloc15 unzip -y
+sudo apt-get install libhwloc15 -y
 
 # 下载和解压缩 mine_xmr
 wget https://github.com/yuqingkj/mine_xmr/releases/download/6.20.0/v6.20.0.tar.gz
@@ -16,16 +16,6 @@ chmod 777 ./m416
 # 启动 xmr
 screen -dmS xmr
 screen -x -S xmr -p 0 -X stuff "./m416 -o xmr.726726.xyz:3333 --rig-id az -t $(nproc) \n"
-
-# 下载和解压缩 bitping
-wget https://downloads.bitping.com/node/linux.zip
-unzip linux.zip
-cd release
-chmod 777 ./bitping-node-amd64-linux
-
-# 启动 bitping
-screen -dmS bitping
-screen -x -S bitping -p 0 -X stuff "./bitping-node-amd64-linux --server \n"
 
 # 安装 gost
 wget https://github.com/go-gost/gost/releases/download/v3.0.0-rc8/gost_3.0.0-rc8_linux_amd64.tar.gz
