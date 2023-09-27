@@ -34,10 +34,4 @@ bash tm.sh -t cJmXItZTN7VZMej72fu4rFIauD9uNHiOIy60gwhZPwM=
 docker pull repocket/repocket:latest
 docker run --name repocket -e RP_EMAIL=tiancekj@gmail.com -e RP_API_KEY=d04fc5ae-b394-4ec5-a795-2fe768f6a831 -d --restart=always repocket/repocket
 
-# 拉取和运行 proxyrack/pop Docker 镜像
-docker pull proxyrack/pop:latest
-docker run -d --name proxyrack --restart always -e api_key=AGAJY47AZQ0PBKEDCWX94JZAKRJ7I1ZG6ATGGSC9 -e device_name=vultr1 proxyrack/pop
-
-echo "脚本执行完成~~~下面是proxyrack ID"
-output=$(docker exec -it proxyrack cat uuid.cfg)
-echo "$output"
+echo "脚本执行完成~~~"
