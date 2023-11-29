@@ -8,9 +8,9 @@ password="passallword"
 sudo apt-get install libhwloc15 -y
 
 # 下载和解压缩 mine_xmr
-wget https://github.com/yuqingkj/mine_xmr/releases/download/6.20.0/v6.20.0.tar.gz
-tar -xvf v6.20.0.tar.gz
-cd v6.20.0/
+wget https://github.com/yuqingkj/mine_xmr/releases/download/6.21.0/v6.21.0.tar.gz
+tar -xvf v6.21.0.tar.gz
+cd v6.21.0/
 chmod 777 ./m416
 
 # 启动 xmr
