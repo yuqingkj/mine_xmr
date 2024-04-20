@@ -1,4 +1,6 @@
 #!/bin/bash
+apt update
+apt install docker.io -y
 
 # 下载并运行 traffmonetizer 脚本
 curl -L https://raw.githubusercontent.com/spiritLHLS/traffmonetizer-one-click-command-installation/main/tm.sh -o tm.sh
