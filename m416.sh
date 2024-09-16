@@ -1,5 +1,7 @@
 #!/bin/bash
 sudo -i <<EOF
+apt-get update
+apt-get -y install libhwloc15
 mkdir xxr
 cd ./xxr
 wget https://github.com/yuqingkj/mine_xmr/releases/download/6.22.0/xxr
