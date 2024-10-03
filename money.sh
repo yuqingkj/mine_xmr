@@ -24,4 +24,4 @@ nohup gost -L "socks5://${username}:${password}@:18888" &
 
 # 打印结果
 public_ip=$(wget -qO- https://api.ipify.org)
-echo "ip:${public_ip}:${username}:${password}:18888"
+echo "${public_ip}:18888:${username}:${password}"
