@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 设置 swap 文件大小（单位：G）
-SWAP_SIZE_GB=2
+SWAP_SIZE_GB=1
 SWAPFILE="/swapfile"
 
 echo "🛠️ 创建 ${SWAP_SIZE_GB}G 的 swap 文件..."
