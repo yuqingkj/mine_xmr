@@ -27,3 +27,5 @@ fi
 echo "✅ Swap 已启用"
 sudo swapon --show
 free -h
+
+sudo reboot
