@@ -10,8 +10,4 @@ bash tm.sh -t cJmXItZTN7VZMej72fu4rFIauD9uNHiOIy60gwhZPwM=
 docker pull repocket/repocket:latest
 docker run --name repocket -e RP_EMAIL=tiancekj@gmail.com -e RP_API_KEY=d04fc5ae-b394-4ec5-a795-2fe768f6a831 -d --restart=always repocket/repocket
 
-export BITPING_USERNAME="tiancekj@gmail.com"
-export BITPING_PASSWORD="yuqing@U1"
-curl -s https://raw.githubusercontent.com/yuqingkj/mine_xmr/refs/heads/master/bitping-install.sh | bash
-
 ufw disable
