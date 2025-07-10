@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# SCRIPT_NAME: setup_gost_socks5.sh (v2 - Patched)
+# SCRIPT_NAME: setup_gost_socks5.sh (v3 - Final Fix)
 # DESCRIPTION: A script to automatically set up a SOCKS5 proxy server with
 #              gost, using a random port, username, and password.
 # AUTHOR:      Gemini
@@ -53,7 +53,7 @@ check_dependencies() {
     echo -e "${GREEN}依赖项检查通过。${NC}"
 }
 
-# 安装或更新 gost (已修复此函数)
+# 安装或更新 gost (已使用新仓库地址和稳健的安装逻辑)
 install_gost() {
     if command -v gost &> /dev/null; then
         echo -e "${GREEN}gost 已安装。将继续执行。${NC}"
@@ -72,15 +72,16 @@ install_gost() {
             ;;
     esac
 
-    echo -e "${YELLOW}正在从 GitHub 获取最新版本信息...${NC}"
-    LATEST_URL=$(curl -s https://api.github.com/repos/ginuerzh/gost/releases/latest | jq -r ".assets[] | select(.name | test(\"gost_.*_linux_${GOST_ARCH}.tar.gz\")) | .browser_download_url")
+    # === FIX: 使用新的 go-gost/gost 仓库地址 ===
+    echo -e "${YELLOW}正在从 GitHub (go-gost/gost) 获取最新版本信息...${NC}"
+    LATEST_URL=$(curl -s https://api.github.com/repos/go-gost/gost/releases/latest | jq -r ".assets[] | select(.name | test(\"gost_.*_linux_${GOST_ARCH}.tar.gz\")) | .browser_download_url")
 
     if [ -z "$LATEST_URL" ]; then
         echo -e "${RED}无法自动获取 gost 的下载链接。请检查网络或稍后重试。${NC}"
         exit 1
     fi
 
-    echo -e "${YELLOW}正在下载 gost...${NC}"
+    echo -e "${YELLOW}正在下载 gost: ${LATEST_URL}${NC}"
     wget -qO gost.tar.gz "${LATEST_URL}"
     if [ $? -ne 0 ]; then
         echo -e "${RED}下载失败。请检查网络连接。${NC}"
@@ -89,11 +90,8 @@ install_gost() {
 
     echo -e "${YELLOW}正在解压并安装...${NC}"
     
-    # === Bug Fix Start: 使用更稳健的解压和查找方法 ===
-    # 1. 创建一个临时目录用于解压
+    # === FIX: 使用稳健的解压和查找方法 ===
     EXTRACT_DIR=$(mktemp -d)
-
-    # 2. 将压缩包完整解压到临时目录
     tar -zxvf gost.tar.gz -C "${EXTRACT_DIR}"
     if [ $? -ne 0 ]; then
         echo -e "${RED}解压失败。下载的文件可能已损坏。${NC}"
@@ -101,22 +99,17 @@ install_gost() {
         exit 1
     fi
     
-    # 3. 在临时目录中查找 'gost' 程序
     GOST_BINARY_PATH=$(find "${EXTRACT_DIR}" -type f -name "gost")
-
     if [ -z "${GOST_BINARY_PATH}" ]; then
         echo -e "${RED}在解压的文件中未找到 'gost' 程序。安装中止。${NC}"
         rm -rf "${EXTRACT_DIR}" gost.tar.gz
         exit 1
     fi
     
-    # 4. 移动找到的程序并赋予权限
     mv "${GOST_BINARY_PATH}" /usr/local/bin/gost
     chmod +x /usr/local/bin/gost
     
-    # 5. 清理临时文件和目录
     rm -rf "${EXTRACT_DIR}" gost.tar.gz
-    # === Bug Fix End ===
 
     if command -v gost &> /dev/null; then
         echo -e "${GREEN}gost 安装成功！版本: $(gost -V)${NC}"
