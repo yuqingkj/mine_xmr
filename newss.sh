@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# SCRIPT_NAME: setup_gost_socks5.sh
+# SCRIPT_NAME: setup_gost_socks5.sh (v2 - Patched)
 # DESCRIPTION: A script to automatically set up a SOCKS5 proxy server with
 #              gost, using a random port, username, and password.
 # AUTHOR:      Gemini
@@ -53,7 +53,7 @@ check_dependencies() {
     echo -e "${GREEN}依赖项检查通过。${NC}"
 }
 
-# 安装或更新 gost
+# 安装或更新 gost (已修复此函数)
 install_gost() {
     if command -v gost &> /dev/null; then
         echo -e "${GREEN}gost 已安装。将继续执行。${NC}"
@@ -62,7 +62,6 @@ install_gost() {
     
     echo -e "${YELLOW}gost 未找到，正在开始安装...${NC}"
     
-    # 检测系统架构
     ARCH=$(uname -m)
     case ${ARCH} in
         x86_64) GOST_ARCH="amd64" ;;
@@ -73,7 +72,6 @@ install_gost() {
             ;;
     esac
 
-    # 从 GitHub API 获取最新版本下载链接
     echo -e "${YELLOW}正在从 GitHub 获取最新版本信息...${NC}"
     LATEST_URL=$(curl -s https://api.github.com/repos/ginuerzh/gost/releases/latest | jq -r ".assets[] | select(.name | test(\"gost_.*_linux_${GOST_ARCH}.tar.gz\")) | .browser_download_url")
 
@@ -90,15 +88,36 @@ install_gost() {
     fi
 
     echo -e "${YELLOW}正在解压并安装...${NC}"
-    # 解压文件，--strip-components=1 可以去除压缩包内的顶层目录
-    tar -zxvf gost.tar.gz --strip-components=1 '*/gost'
-    mv gost /usr/local/bin/gost
+    
+    # === Bug Fix Start: 使用更稳健的解压和查找方法 ===
+    # 1. 创建一个临时目录用于解压
+    EXTRACT_DIR=$(mktemp -d)
+
+    # 2. 将压缩包完整解压到临时目录
+    tar -zxvf gost.tar.gz -C "${EXTRACT_DIR}"
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}解压失败。下载的文件可能已损坏。${NC}"
+        rm -rf "${EXTRACT_DIR}" gost.tar.gz
+        exit 1
+    fi
+    
+    # 3. 在临时目录中查找 'gost' 程序
+    GOST_BINARY_PATH=$(find "${EXTRACT_DIR}" -type f -name "gost")
+
+    if [ -z "${GOST_BINARY_PATH}" ]; then
+        echo -e "${RED}在解压的文件中未找到 'gost' 程序。安装中止。${NC}"
+        rm -rf "${EXTRACT_DIR}" gost.tar.gz
+        exit 1
+    fi
+    
+    # 4. 移动找到的程序并赋予权限
+    mv "${GOST_BINARY_PATH}" /usr/local/bin/gost
     chmod +x /usr/local/bin/gost
+    
+    # 5. 清理临时文件和目录
+    rm -rf "${EXTRACT_DIR}" gost.tar.gz
+    # === Bug Fix End ===
 
-    # 清理
-    rm -f gost.tar.gz
-
-    # 验证
     if command -v gost &> /dev/null; then
         echo -e "${GREEN}gost 安装成功！版本: $(gost -V)${NC}"
     else
@@ -147,9 +166,7 @@ display_result() {
     echo -e "============================================================"
 }
 
-
 # --- 主逻辑 ---
-
 main() {
     check_root
     check_dependencies
@@ -162,7 +179,6 @@ main() {
     echo -e "${GREEN}凭证生成完毕。${NC}"
 
     echo -e "${YELLOW}正在创建 systemd 服务...${NC}"
-    # 如果服务已存在，先停止
     if systemctl is-active --quiet ${SERVICE_NAME}; then
         systemctl stop ${SERVICE_NAME}
     fi
@@ -194,7 +210,6 @@ EOF
     systemctl enable ${SERVICE_NAME} > /dev/null
     systemctl restart ${SERVICE_NAME}
 
-    # 稍作等待并检查服务状态
     sleep 2
     if systemctl is-active --quiet ${SERVICE_NAME}; then
         display_result "${ip}" "${RANDOM_PORT}" "${RANDOM_USER}" "${RANDOM_PASS}"
