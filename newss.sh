@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # ==============================================================================
-# SCRIPT_NAME: setup_gost_socks5.sh (v3 - Final Fix)
+# SCRIPT_NAME: setup_gost_socks5.sh (v5 - No Firewall)
 # DESCRIPTION: A script to automatically set up a SOCKS5 proxy server with
 #              gost, using a random port, username, and password.
+#              Firewall configuration has been disabled per user request.
 # AUTHOR:      Gemini
 # DATE:        2025-07-10
 # ==============================================================================
@@ -53,7 +54,7 @@ check_dependencies() {
     echo -e "${GREEN}依赖项检查通过。${NC}"
 }
 
-# 安装或更新 gost (已使用新仓库地址和稳健的安装逻辑)
+# 安装或更新 gost
 install_gost() {
     if command -v gost &> /dev/null; then
         echo -e "${GREEN}gost 已安装。将继续执行。${NC}"
@@ -72,7 +73,6 @@ install_gost() {
             ;;
     esac
 
-    # === FIX: 使用新的 go-gost/gost 仓库地址 ===
     echo -e "${YELLOW}正在从 GitHub (go-gost/gost) 获取最新版本信息...${NC}"
     LATEST_URL=$(curl -s https://api.github.com/repos/go-gost/gost/releases/latest | jq -r ".assets[] | select(.name | test(\"gost_.*_linux_${GOST_ARCH}.tar.gz\")) | .browser_download_url")
 
@@ -90,7 +90,6 @@ install_gost() {
 
     echo -e "${YELLOW}正在解压并安装...${NC}"
     
-    # === FIX: 使用稳健的解压和查找方法 ===
     EXTRACT_DIR=$(mktemp -d)
     tar -zxvf gost.tar.gz -C "${EXTRACT_DIR}"
     if [ $? -ne 0 ]; then
@@ -119,21 +118,14 @@ install_gost() {
     fi
 }
 
-# 配置防火墙
+# 配置防火墙 (已根据用户要求禁用)
 configure_firewall() {
     local port=$1
-    echo -e "${YELLOW}正在配置防火墙以开放端口 ${port}...${NC}"
-    if command -v ufw &> /dev/null; then
-        ufw allow "${port}/tcp" > /dev/null
-        ufw reload > /dev/null
-        echo -e "${GREEN}ufw 防火墙规则已更新。${NC}"
-    elif command -v firewall-cmd &> /dev/null; then
-        firewall-cmd --zone=public --add-port="${port}/tcp" --permanent > /dev/null
-        firewall-cmd --reload > /dev/null
-        echo -e "${GREEN}firewalld 防火墙规则已更新。${NC}"
-    else
-        echo -e "${YELLOW}警告：未检测到 ufw 或 firewalld。请手动开放 TCP 端口 ${port}。${NC}"
-    fi
+    echo -e "${YELLOW}============================================================${NC}"
+    echo -e "${YELLOW}注意：防火墙自动配置已跳过。${NC}"
+    echo -e "${YELLOW}如果您的服务器启用了防火墙，请务必手动开放 TCP 端口: ${port}${NC}"
+    echo -e "${YELLOW}例如: 'sudo ufw allow ${port}/tcp' 或 'sudo firewall-cmd --add-port=${port}/tcp --permanent'${NC}"
+    echo -e "${YELLOW}============================================================${NC}"
 }
 
 # 显示结果
@@ -144,7 +136,6 @@ display_result() {
     user=$3
     pass=$4
 
-    echo -e "============================================================"
     echo -e "🎉 ${GREEN}SOCKS5 代理已成功部署！${NC} 🎉"
     echo ""
     echo -e "  以下是您的连接信息:"
@@ -155,6 +146,11 @@ display_result() {
     echo -e "  ${YELLOW}密码 (Password):${NC}         ${pass}"
     echo -e "  --------------------------------------------------------"
     echo ""
+    
+    echo -e "  ${GREEN}一键导入格式 (IP:Port:Username:Password):${NC}"
+    echo -e "  ${ip}:${port}:${user}:${pass}"
+    echo ""
+
     echo -e "  请妥善保管您的密码。"
     echo -e "============================================================"
 }
@@ -196,6 +192,7 @@ WantedBy=multi-user.target
 EOF
     echo -e "${GREEN}systemd 服务文件已创建。${NC}"
 
+    # 调用修改后的防火墙函数，现在它只会打印提示信息
     configure_firewall "${RANDOM_PORT}"
 
     echo -e "${YELLOW}正在重载 systemd 并启动服务...${NC}"
