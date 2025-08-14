@@ -130,29 +130,31 @@ configure_firewall() {
 
 # 显示结果
 display_result() {
-    local ip port user pass=$1
-    ip=$(curl -s https://ipinfo.io/ip) || ip=$(hostname -I | awk '{print $1}')
-    port=$2
-    user=$3
-    pass=$4
+    # 正确地从参数接收变量
+    local port=$1
+    local user=$2
+    local pass=$3
+    # 在函数内部获取 IP
+    local ip
+    ip=$(curl -s https://ipinfo.io/ip) || ip=$(hostname -I | awk '{print $1}')
 
-    echo -e "🎉 ${GREEN}SOCKS5 代理已成功部署！${NC} 🎉"
-    echo ""
-    echo -e "  以下是您的连接信息:"
-    echo -e "  --------------------------------------------------------"
-    echo -e "  ${YELLOW}服务器地址 (Server IP):${NC}  ${ip}"
-    echo -e "  ${YELLOW}端口 (Port):${NC}             ${port}"
-    echo -e "  ${YELLOW}用户名 (Username):${NC}       ${user}"
-    echo -e "  ${YELLOW}密码 (Password):${NC}         ${pass}"
-    echo -e "  --------------------------------------------------------"
-    echo ""
-    
-    echo -e "  ${GREEN}一键导入格式 (IP:Port:Username:Password):${NC}"
-    echo -e "  ${ip}:${port}:${user}:${pass}"
-    echo ""
+    echo -e "🎉 ${GREEN}SOCKS5 代理已成功部署！${NC} 🎉"
+    echo ""
+    echo -e "  以下是您的连接信息:"
+    echo -e "  --------------------------------------------------------"
+    echo -e "  ${YELLOW}服务器地址 (Server IP):${NC}  ${ip}"
+    echo -e "  ${YELLOW}端口 (Port):${NC}             ${port}"
+    echo -e "  ${YELLOW}用户名 (Username):${NC}       ${user}"
+    echo -e "  ${YELLOW}密码 (Password):${NC}         ${pass}"
+    echo -e "  --------------------------------------------------------"
+    echo ""
+    
+    echo -e "  ${GREEN}一键导入格式 (IP:Port:Username:Password):${NC}"
+    echo -e "  ${ip}:${port}:${user}:${pass}"
+    echo ""
 
-    echo -e "  请妥善保管您的密码。"
-    echo -e "============================================================"
+    echo -e "  请妥善保管您的密码。"
+    echo -e "============================================================"
 }
 
 # --- 主逻辑 ---
@@ -201,12 +203,13 @@ EOF
     systemctl restart ${SERVICE_NAME}
 
     sleep 2
-    if systemctl is-active --quiet ${SERVICE_NAME}; then
-        display_result "${ip}" "${RANDOM_PORT}" "${RANDOM_USER}" "${RANDOM_PASS}"
-    else
-        echo -e "${RED}服务启动失败！请运行 'journalctl -u ${SERVICE_NAME}' 查看日志。${NC}"
-        exit 1
-    fi
+    if systemctl is-active --quiet ${SERVICE_NAME}; then
+        # 正确调用，只传递已知的变量
+        display_result "${RANDOM_PORT}" "${RANDOM_USER}" "${RANDOM_PASS}"
+    else
+        echo -e "${RED}服务启动失败！请运行 'journalctl -u ${SERVICE_NAME}' 查看日志。${NC}"
+        exit 1
+    fi
 }
 
 # --- 脚本入口 ---
