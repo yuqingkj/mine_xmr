@@ -2,22 +2,19 @@
 ###############################################################################
 # Chrome-VNC 一键部署脚本  (TigerVNC 版)
 # 用途: 在一台全新的 Ubuntu/Debian 服务器上部署
-#       「最新 Google Chrome + 标准 5900 VNC + noVNC 网页访问」
+#       「最新 Google Chrome + 标准 5900 VNC」
 #       - 服务端用 TigerVNC(Xvnc): 剪贴板双向同步稳定(替代有 bug 的 x11vnc)
 #       - 自带中文/泰文/emoji 字体, 不再乱码
-#       - 同时提供 noVNC 网页访问(浏览器即可连, 自带手动剪贴板框)
 #
 # 用法: sudo bash deploy-chrome-vnc.sh
 # 可用环境变量覆盖参数, 例如:
-#   VNC_PASS=xxx RES=1920x1080 NOVNC_PORT=6080 bash deploy-chrome-vnc.sh
+#   VNC_PASS=xxx RES=1920x1080 bash deploy-chrome-vnc.sh
 ###############################################################################
 set -e
 
 VNC_PASS="${VNC_PASS:-}"                          # VNC 密码 (留空=无密码)
 RES="${RES:-2560x1440}"                            # 分辨率 (宽x高)
 VNC_PORT="${VNC_PORT:-5900}"                        # 对外 VNC 端口 (原生客户端)
-NOVNC_PORT="${NOVNC_PORT:-6080}"                    # 对外 noVNC 网页端口
-ENABLE_WEB="${ENABLE_WEB:-1}"                       # 1=部署 noVNC 网页访问, 0=不部署
 HOMEPAGE="${HOMEPAGE:-https://www.google.com}"      # Chrome 启动首页
 IMAGE="chrome-vnc:latest"
 NAME="chrome-vnc"
@@ -40,7 +37,6 @@ XVNC_CMD="/usr/bin/Xvnc :0 -geometry ${RES} -depth 24 -rfbport 5900 ${SEC_ARGS} 
 echo "================ 配置 ================"
 echo "分辨率   : $RES (24位全彩)"
 echo "VNC端口  : $VNC_PORT   密码: $PASS_DESC"
-[ "$ENABLE_WEB" = "1" ] && echo "网页端口 : $NOVNC_PORT (noVNC)"
 echo "首页     : $HOMEPAGE"
 echo "====================================="
 
@@ -132,34 +128,10 @@ docker rm -f "$NAME" >/dev/null 2>&1 || true
 docker run -d --name "$NAME" --shm-size=2g --restart unless-stopped \
   -p ${VNC_PORT}:5900 "$IMAGE"
 
-# ---------- 4. (可选)部署 noVNC 网页访问 ----------
-if [ "$ENABLE_WEB" = "1" ]; then
-  echo "--- 部署 noVNC 网页访问 ---"
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get install -y novnc websockify >/dev/null 2>&1 || apt-get install -y novnc websockify
-  cat > /etc/systemd/system/novnc.service <<EOF
-[Unit]
-Description=noVNC websocket proxy for chrome-vnc
-After=docker.service
-Wants=docker.service
-
-[Service]
-ExecStart=/usr/bin/websockify --web=/usr/share/novnc ${NOVNC_PORT} localhost:${VNC_PORT}
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-  systemctl daemon-reload
-  systemctl enable --now novnc
-  systemctl restart novnc
-fi
-
 sleep 8
 echo "================ 完成 ================"
 docker exec "$NAME" bash -c "DISPLAY=:0 xdpyinfo 2>/dev/null | grep dimensions" || true
 IP=$(curl -s --max-time 5 ifconfig.me 2>/dev/null || echo "<服务器IP>")
 echo "原生 VNC : ${IP}:${VNC_PORT}   密码: ${PASS_DESC}"
-[ "$ENABLE_WEB" = "1" ] && echo "网页访问 : http://${IP}:${NOVNC_PORT}/vnc.html"
-echo "(若连不上, 检查云服务器安全组/防火墙是否放行 ${VNC_PORT}${ENABLE_WEB:+ 和 ${NOVNC_PORT}} 端口)"
+echo "(若连不上, 检查云服务器安全组/防火墙是否放行 ${VNC_PORT} 端口)"
 echo "====================================="
